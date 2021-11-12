@@ -99,10 +99,15 @@ public class RegistrationMenu implements ActionListener {
         btnBack.addActionListener(this);
 
         // Set JComboBox
-        // QueryController queryController = new QueryController();
-        // ArrayList<String> categories = queryController.getCategoryUser;   
-        // cbCategory = new JComboBox(categories); 
-        // cbCategory.setBounds(85, 420,90,20);    
+        QueryController queryController = new QueryController();
+        ArrayList<String> categories = queryController.getCategoryUser();  
+        String[] categoryList = new String[3];
+        for (int i = 0; i < categories.size(); i++) {
+            categoryList[i] = categories.get(i);
+        } 
+        cbCategory = new JComboBox(categoryList); 
+        cbCategory.setBounds(300, 210,90,20);
+        cbCategory.setVisible(true);    
 
         // Adding components
         panel.add(lLogin);
@@ -112,6 +117,7 @@ public class RegistrationMenu implements ActionListener {
         panel.add(tfEmail);
         panel.add(tfNama);
         panel.add(pfPassword);
+        panel.add(cbCategory);
         panel.add(btnRegistrasi);
         panel.add(btnBack);
         frame.setContentPane(panel);
@@ -126,7 +132,8 @@ public class RegistrationMenu implements ActionListener {
         String command = e.getActionCommand();
         switch(command) {
             case "Registrasi":
-                System.out.println("TEST 1");
+                System.out.println("ON PROGRESS");
+                // User user = new User(idUser, name, email, password, idCategory);
                 // frame.dispose();
                 break;
             case "Back":
