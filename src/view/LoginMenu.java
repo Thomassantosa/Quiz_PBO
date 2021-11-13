@@ -36,7 +36,7 @@ public class LoginMenu implements ActionListener{
         frame.setLayout(null);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Image icon = Toolkit.getDefaultToolkit().getImage("src\\source\\Logo_Splashscreen.png");    
+        Image icon = Toolkit.getDefaultToolkit().getImage("src\\image\\Logo_Color.png");  
         frame.setIconImage(icon);
 
         // Set JPanel
@@ -108,22 +108,27 @@ public class LoginMenu implements ActionListener{
         String command = e.getActionCommand();
         switch(command) {
             case "Login":
-                System.out.println("TEST 1");
 
+                // Get value
                 String email = tfEmail.getText();
                 String password = String.valueOf(pfPassword.getPassword());
+
+                // Checking value
                 if (email.equals("") && password.equals("")) {
                     JOptionPane.showMessageDialog(null, "Please fill all field !");
                 } else {
+
+                    // Get data from database
                     QueryController queryController = new QueryController();
-                    User user = queryController.getUser(email, password);
+                    User user = queryController.selectUser(email, password);
                     if (user == null) {
                         JOptionPane.showMessageDialog(null, "User not found");
                     } else {
-                        System.out.println(user.toString());
+                        new ProfileMenu(user);
+                        frame.dispose();
                     }
                 }
-                // frame.dispose();
+
                 break;
             case "Back":
                 new MainMenu();

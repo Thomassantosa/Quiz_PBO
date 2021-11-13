@@ -15,7 +15,7 @@ public class QueryController {
     
     public boolean insertUser(User user) {
         conn.connect();
-        String query = "INSERT INTO `user`(`name`, `email`, `password`, `id_category`) VALUES ('?','?','?','?')";
+        String query = "INSERT INTO `user`(`name`, `email`, `password`, `id_category`) VALUES (?,?,?,?)";
         try {
             PreparedStatement stmt = conn.conn.prepareStatement(query);
             stmt.setString(1, user.getName());
@@ -30,7 +30,7 @@ public class QueryController {
         }
     }
 
-    public User getUser(String email, String password) {
+    public User selectUser(String email, String password) {
         conn.connect();
         String query = "SELECT `id_user`, `name`, `email`, `password`, `id_category` FROM `user` WHERE email='" + email + "' AND password='" + password + "'";
         try {
@@ -57,19 +57,47 @@ public class QueryController {
         }
     }
 
-    public ArrayList<String> getCategoryUser() {
+    public ArrayList<User> selectUserByCategory(String category) {
+        conn.connect();
+
+        CategoryUser categoryUser = selectCategoryUserByName(category);
+        String query = "SELECT `id_user`, `name`, `email`, `password`, `id_category` FROM `user` WHERE id_category='" + categoryUser.getIdCategory() + "'";
+        try {
+            Statement stmt = conn.conn.createStatement();
+            ResultSet result = stmt.executeQuery(query);
+            ArrayList<User> users = new ArrayList<>();
+
+            while (result.next()) {
+                User user = new User();
+                user.setIdUser(result.getInt("id_user"));
+                user.setName(result.getString("name"));
+                user.setEmail(result.getString("email"));
+                user.setPassword(result.getString("password"));
+                user.setIdCategory(result.getInt("id_category"));
+                users.add(user);
+            }
+
+            return users;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<CategoryUser> selectCategoryUser() {
         conn.connect();
         String query = "SELECT `id_category`, `name` FROM `categoryuser` WHERE 1";
         try {
             Statement stmt = conn.conn.createStatement();
             ResultSet result = stmt.executeQuery(query);
-            ArrayList<String> categories = new ArrayList<>();
+            ArrayList<CategoryUser> categories = new ArrayList<>();
             
             while (result.next()) {
-                // CategoryUser categoryUser = new CategoryUser();
-                // categoryUser.setIdCategory(result.getInt("id_category"));
-                // categoryUser.setName(result.getString("name"));
-                categories.add(result.getString("name"));
+                CategoryUser categoryUser = new CategoryUser();
+                categoryUser.setIdCategory(result.getInt("id_category"));
+                categoryUser.setName(result.getString("name"));
+                categories.add(categoryUser);
             }
 
             return categories;
@@ -77,6 +105,59 @@ public class QueryController {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public CategoryUser selectCategoryUserByName(String name) {
+        conn.connect();
+        String query = "SELECT `id_category`, `name` FROM `categoryuser` WHERE name='" + name +"'";
+        try {
+            Statement stmt = conn.conn.createStatement();
+            ResultSet result = stmt.executeQuery(query);
+            CategoryUser categoryUser = new CategoryUser();
+            
+            while (result.next()) {
+                categoryUser.setIdCategory(result.getInt("id_category"));
+                categoryUser.setName(result.getString("name"));
+            }
+
+            return categoryUser;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean updateUser(int idUser, User user) {
+        conn.connect();
+        String query = "UPDATE `user` SET `name`=?,`email`=?,`password`=?,`id_category`=? WHERE `id_user`=?";
+        try {
+            PreparedStatement stmt = conn.conn.prepareStatement(query);
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, user.getPassword());
+            stmt.setInt(4, user.getIdCategory());
+            stmt.setInt(5, idUser);
+            stmt.executeUpdate();
+            return (true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return (false);
+        }
+    }
+
+    public boolean deleteUser(int idUser) {
+        conn.connect();
+        String query = "DELETE FROM `user` WHERE `id_user`=?";
+        try {
+            PreparedStatement stmt = conn.conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            stmt.executeUpdate();
+            return (true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return (false);
         }
     }
 }

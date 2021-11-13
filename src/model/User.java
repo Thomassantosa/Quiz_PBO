@@ -18,6 +18,13 @@ public class User {
         this.idCategory = idCategory;
     }
 
+    public User(String name, String email, String password, int idCategory) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.idCategory = idCategory;
+    }
+
     public int getIdUser() {
         return this.idUser;
     }

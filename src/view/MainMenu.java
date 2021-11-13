@@ -2,8 +2,10 @@ package view;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Toolkit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,6 +29,8 @@ public class MainMenu implements ActionListener {
         frame.setLayout(null);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Image icon = Toolkit.getDefaultToolkit().getImage("src\\image\\Logo_Color.png");  
+        frame.setIconImage(icon);
 
         // Set JPanel
         panel = new JPanel();
@@ -92,13 +96,13 @@ public class MainMenu implements ActionListener {
                 new LoginMenu();
                 frame.dispose();
                 break;
-                case "Registrasi Pengguna Baru":
+            case "Registrasi Pengguna Baru":
                 new RegistrationMenu();
                 frame.dispose();
                 break;
             case "Lihat Data Pengguna":
-                System.out.println("MENU SEARCH ON PROGRESS");
-                // frame.dispose();
+                new SearchMenu();
+                frame.dispose();
                 break;
             case "Exit":
                 frame.dispose();

@@ -21,7 +21,7 @@ import controller.QueryController;
 import model.CategoryUser;
 import model.User;
 
-public class RegistrationMenu implements ActionListener {
+public class ProfileMenu implements ActionListener {
     
     // Declaring variable
     JFrame frame;
@@ -29,15 +29,19 @@ public class RegistrationMenu implements ActionListener {
     JLabel lLogin, lEmail, lNama, lPassword, lCategory;
     JTextField tfEmail, tfNama;
     JPasswordField pfPassword;
-    JButton btnRegistrasi, btnBack;
+    JButton btnSimpan, btnDelete, btnBack;
     JComboBox<String> cbCategory;
     QueryController queryController = new QueryController();
     ArrayList<CategoryUser> categories = queryController.selectCategoryUser();
+    User user;
 
-    public RegistrationMenu() {
+    public ProfileMenu(User currentUser) {
         
+        // Set User variable to global
+        setUser(currentUser);
+
         // Set JFrame
-        frame = new JFrame("Registration Menu");
+        frame = new JFrame("Profile Menu");
         frame.setSize(900, 550);
         frame.setLayout(null);
         frame.setLocationRelativeTo(null);
@@ -53,7 +57,7 @@ public class RegistrationMenu implements ActionListener {
 
         // Set components
         // Set JLabel
-        lLogin = new JLabel("Registration Menu");
+        lLogin = new JLabel("Profile Menu");
         lLogin.setForeground(new Color(63, 77, 63));
         lLogin.setFont(new Font("Arial", Font.BOLD, 30));
         lLogin.setBounds(85, 20, 450, 40);
@@ -82,39 +86,55 @@ public class RegistrationMenu implements ActionListener {
         tfEmail = new JTextField();
         tfEmail.setFont(new Font("Arial", Font.PLAIN, 20));
         tfEmail.setBounds(200, 110, 250, 40);
-
+        tfEmail.setText(user.getEmail());
+        
         tfNama = new JTextField();
         tfNama.setFont(new Font("Arial", Font.PLAIN, 20));
         tfNama.setBounds(200, 210, 250, 40);
-
+        tfNama.setText(user.getName());
+        
         // Set JPasswordField
         pfPassword = new JPasswordField();
         pfPassword.setFont(new Font("Arial", Font.PLAIN, 20));
         pfPassword.setBounds(200, 310, 250, 40);
+        pfPassword.setText(user.getPassword());
+        // pfPassword.setEchoChar((char)0);
 
         // Set JButton
-        btnRegistrasi = new JButton("Registrasi");
-        btnRegistrasi.setBackground(new Color(173, 194, 169));
-        btnRegistrasi.setForeground(new Color(63, 77, 63));
-        btnRegistrasi.setBounds(100, 400, 150, 60);
-        btnRegistrasi.setFont(new Font("Arial", Font.BOLD, 20));
+        btnSimpan = new JButton("Simpan");
+        btnSimpan.setBackground(new Color(173, 194, 169));
+        btnSimpan.setForeground(new Color(63, 77, 63));
+        btnSimpan.setBounds(100, 400, 150, 60);
+        btnSimpan.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        btnDelete = new JButton("Hapus Data");
+        btnDelete.setBackground(new Color(173, 194, 169));
+        btnDelete.setForeground(new Color(63, 77, 63));
+        btnDelete.setBounds(300, 400, 150, 60);
+        btnDelete.setFont(new Font("Arial", Font.BOLD, 20));
         
         btnBack = new JButton("Back");
         btnBack.setBackground(new Color(173, 194, 169));
         btnBack.setForeground(new Color(63, 77, 63));
-        btnBack.setBounds(300, 400, 150, 60);
+        btnBack.setBounds(500, 400, 150, 60);
         btnBack.setFont(new Font("Arial", Font.BOLD, 20));
 
-        btnRegistrasi.addActionListener(this);
+        btnSimpan.addActionListener(this);
+        btnDelete.addActionListener(this);
         btnBack.addActionListener(this);
 
         // Set JComboBox
         String[] categoryList = new String[categories.size()];
+        String categorySelected = "";
         for (int i = 0; i < categories.size(); i++) {
             categoryList[i] = categories.get(i).getName();
+            if (categories.get(i).getIdCategory() == user.getIdCategory()) {
+                categorySelected = categories.get(i).getName();
+            }
         }
         cbCategory = new JComboBox<>(categoryList); 
         cbCategory.setBounds(600, 110, 200, 40);
+        cbCategory.setSelectedItem(categorySelected);;
 
         // Adding components
         panel.add(lLogin);
@@ -126,7 +146,8 @@ public class RegistrationMenu implements ActionListener {
         panel.add(tfNama);
         panel.add(pfPassword);
         panel.add(cbCategory);
-        panel.add(btnRegistrasi);
+        panel.add(btnSimpan);
+        panel.add(btnDelete);
         panel.add(btnBack);
         frame.setContentPane(panel);
 
@@ -135,11 +156,15 @@ public class RegistrationMenu implements ActionListener {
         frame.setVisible(true);
     }
 
+    public void setUser(User currentUser) {
+        user = currentUser;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         switch(command) {
-            case "Registrasi":
+            case "Simpan":
 
                 // Get value
                 String email = tfEmail.getText();
@@ -160,19 +185,38 @@ public class RegistrationMenu implements ActionListener {
                         }
                     }
                     
-                    // Make new user and insert to database
-                    User user = new User(name, email, password, idCategory);
-                    boolean success = queryController.insertUser(user);
+                    // Update user data
+                    User updatedUser = new User(name, email, password, idCategory);
+                    boolean success = queryController.updateUser(user.getIdUser(), updatedUser);
 
                     if (success) {
-                        JOptionPane.showMessageDialog(null, "Register success");
-                        frame.dispose();
-                        new MainMenu();
+                        JOptionPane.showMessageDialog(null, "Update success");
                     } else {
-                        JOptionPane.showMessageDialog(null, "Register failed");
+                        JOptionPane.showMessageDialog(null, "Update failed");
                     }
                 }
+                frame.dispose();
+                new MainMenu();
                 break;
+
+            case "Hapus Data":
+
+                int result = JOptionPane.showConfirmDialog(null,"Are you sure want to delete this account ?", "Confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+                if(result == JOptionPane.YES_OPTION){
+                    boolean success = queryController.deleteUser(user.getIdUser());
+                    if (success) {
+                        JOptionPane.showMessageDialog(null, "Delete success");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Delete failed");
+                    }
+                    new MainMenu();
+                    frame.dispose();
+                    
+                }
+                break;
+
             case "Back":
                 new MainMenu();
                 frame.dispose();
